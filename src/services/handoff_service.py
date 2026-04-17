@@ -122,19 +122,11 @@ class HandoffService:
         print("Beginning intent classification...")
         current_domain = self._session_domains.get(session_id, None)
         
-        # If no current domain, route to default
+        # If no current domain, set default but still classify the message
         if not current_domain:
-            logger.info(f"[HANDOFF_SERVICE] First message for session {session_id}, routing to {self.default_domain}")
+            logger.info(f"[HANDOFF_SERVICE] First message for session {session_id}, classifying intent before routing")
+            current_domain = self.default_domain
             self._session_domains[session_id] = self.default_domain
-            
-            return {
-                "domain": self.default_domain,
-                "is_domain_change": True,
-                "confidence": 1.0,
-                "reasoning": f"First message, routing to {self.default_domain}",
-                "agent_id": self.default_domain,
-                "agent_name": AGENT_DOMAINS[self.default_domain]["name"]
-            }
         
         # Build classification prompt
         prompt = f"""
